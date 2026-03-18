@@ -1,0 +1,26 @@
+{
+  "model_type": "lightweight_token_log_odds",
+  "training_splits": [
+    "train",
+    "val"
+  ],
+  "training_examples": 1400,
+  "preprocessing": {
+    "normalization": "lowercase + whitespace collapse",
+    "features": [
+      "unigram",
+      "bigram"
+    ]
+  },
+  "thresholds": {
+    "binary": {
+      "is_ag_related": 0.5,
+      "needs_rag": 0.52,
+      "needs_web_search": 0.5,
+      "needs_weather_data": 0.5,
+      "needs_farm_data": 0.5
+    },
+    "crops": 0.45,
+    "topics": 0.42
+  }
+}
