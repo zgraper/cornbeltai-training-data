@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cornbelt.ai/schema/routing_schema.json",
+  "title": "CornbeltAI Routing Dataset Example",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "input",
+    "labels",
+    "meta"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^route_[0-9]{6}$"
+    },
+    "input": {
+      "type": "string",
+      "minLength": 1
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "is_ag_related",
+        "crops",
+        "topics",
+        "needs_rag",
+        "needs_web_search",
+        "needs_weather_data",
+        "needs_farm_data",
+        "intent",
+        "urgency"
+      ],
+      "properties": {
+        "is_ag_related": {
+          "type": "boolean"
+        },
+        "crops": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "corn",
+              "soybean",
+              "both",
+              "unknown"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "topics": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "weather",
+              "disease",
+              "pest",
+              "weed",
+              "nutrient",
+              "soil",
+              "management",
+              "market_economics",
+              "equipment",
+              "ag_technology",
+              "policy_regulation",
+              "general_agronomy"
+            ]
+          },
+          "uniqueItems": true
+        },
+        "needs_rag": {
+          "type": "boolean"
+        },
+        "needs_web_search": {
+          "type": "boolean"
+        },
+        "needs_weather_data": {
+          "type": "boolean"
+        },
+        "needs_farm_data": {
+          "type": "boolean"
+        },
+        "intent": {
+          "type": "string",
+          "enum": [
+            "question",
+            "diagnosis",
+            "recommendation",
+            "planning",
+            "monitoring",
+            "information_lookup",
+            "comparison",
+            "other"
+          ]
+        },
+        "urgency": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_type",
+        "difficulty",
+        "notes"
+      ],
+      "properties": {
+        "source_type": {
+          "type": "string",
+          "enum": [
+            "synthetic"
+          ]
+        },
+        "difficulty": {
+          "type": "string",
+          "enum": [
+            "simple",
+            "medium",
+            "hard"
+          ]
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
