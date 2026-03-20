@@ -12,12 +12,24 @@ ROOT = Path(__file__).resolve().parents[1]
 DATASET_DIR = ROOT / "datasets" / "routing"
 SPLITS = ["train.jsonl", "val.jsonl", "test.jsonl"]
 EDGE_COMBOS = {
-    "weather_only": (False, False, True, False),
-    "web_only": (False, True, False, False),
-    "farm_only": (False, False, False, True),
-    "rag_plus_weather": (True, False, True, False),
-    "rag_plus_farm": (True, False, False, True),
-    "web_plus_weather": (False, True, True, False),
+    "weather_only": (False, False, True, False, False),
+    "web_only": (False, True, False, False, False),
+    "farm_only": (False, False, False, True, False),
+    "epa_only": (False, False, False, False, True),
+    "rag_plus_weather": (True, False, True, False, False),
+    "rag_plus_farm": (True, False, False, True, False),
+    "web_plus_weather": (False, True, True, False, False),
+    "rag_plus_epa": (True, False, False, False, True),
+}
+EDGE_COMBO_MIN_COUNTS = {
+    "weather_only": 20,
+    "web_only": 20,
+    "farm_only": 20,
+    "epa_only": 0,
+    "rag_plus_weather": 20,
+    "rag_plus_farm": 20,
+    "web_plus_weather": 20,
+    "rag_plus_epa": 0,
 }
 VAGUE_REGEX = re.compile(
     r"\b(looks bad|looks rough|not right|acting up|field looks|weird|off|something wrong|now what|"
@@ -72,7 +84,8 @@ def warning_flags(total: int, ag_total: int, non_ag_total: int, topic_counts: Co
     if multi_topic / total < 0.20:
         warnings.append(f"multi-topic ratio is {multi_topic / total:.1%}; expected at least 20%")
     for combo_name, combo in EDGE_COMBOS.items():
-        if route_combo_counts[combo] < 20:
+        min_count = EDGE_COMBO_MIN_COUNTS.get(combo_name, 20)
+        if route_combo_counts[combo] < min_count:
             warnings.append(f"edge combo {combo_name} has only {route_combo_counts[combo]} rows")
     low_topic_threshold = max(20, int(ag_total * 0.04))
     for topic, count in sorted(topic_counts.items()):
@@ -108,10 +121,10 @@ def build_report(rows: list[tuple[str, dict]]) -> str:
             crop_counts[crop] += 1
         for topic in labels["topics"]:
             topic_counts[topic] += 1
-        for flag in ["needs_rag", "needs_web_search", "needs_weather_data", "needs_farm_data"]:
+        for flag in ["needs_rag", "needs_web_search", "needs_weather_data", "needs_farm_data", "needs_epa_label"]:
             flag_counts[f"{flag}=true"] += int(labels[flag])
             flag_counts[f"{flag}=false"] += int(not labels[flag])
-        combo = (labels["needs_rag"], labels["needs_web_search"], labels["needs_weather_data"], labels["needs_farm_data"])
+        combo = (labels["needs_rag"], labels["needs_web_search"], labels["needs_weather_data"], labels["needs_farm_data"], labels["needs_epa_label"])
         route_combo_counts[combo] += 1
         if len(row["input"].split()) <= 5:
             short_queries += 1
@@ -124,10 +137,11 @@ def build_report(rows: list[tuple[str, dict]]) -> str:
     warnings = warning_flags(total, ag_total, non_ag_total, topic_counts, route_combo_counts, short_queries, vague_queries, multi_topic)
     samples = {
         "non_ag": sample_examples(rows, lambda row: not row["labels"]["is_ag_related"]),
-        "weather_only": sample_examples(rows, lambda row: row["labels"]["is_ag_related"] and (row["labels"]["needs_rag"], row["labels"]["needs_web_search"], row["labels"]["needs_weather_data"], row["labels"]["needs_farm_data"]) == EDGE_COMBOS["weather_only"]),
-        "web_only": sample_examples(rows, lambda row: row["labels"]["is_ag_related"] and (row["labels"]["needs_rag"], row["labels"]["needs_web_search"], row["labels"]["needs_weather_data"], row["labels"]["needs_farm_data"]) == EDGE_COMBOS["web_only"]),
-        "farm_only": sample_examples(rows, lambda row: row["labels"]["is_ag_related"] and (row["labels"]["needs_rag"], row["labels"]["needs_web_search"], row["labels"]["needs_weather_data"], row["labels"]["needs_farm_data"]) == EDGE_COMBOS["farm_only"]),
-        "rag_weather": sample_examples(rows, lambda row: row["labels"]["is_ag_related"] and (row["labels"]["needs_rag"], row["labels"]["needs_web_search"], row["labels"]["needs_weather_data"], row["labels"]["needs_farm_data"]) == EDGE_COMBOS["rag_plus_weather"]),
+        "weather_only": sample_examples(rows, lambda row: row["labels"]["is_ag_related"] and (row["labels"]["needs_rag"], row["labels"]["needs_web_search"], row["labels"]["needs_weather_data"], row["labels"]["needs_farm_data"], row["labels"]["needs_epa_label"]) == EDGE_COMBOS["weather_only"]),
+        "web_only": sample_examples(rows, lambda row: row["labels"]["is_ag_related"] and (row["labels"]["needs_rag"], row["labels"]["needs_web_search"], row["labels"]["needs_weather_data"], row["labels"]["needs_farm_data"], row["labels"]["needs_epa_label"]) == EDGE_COMBOS["web_only"]),
+        "farm_only": sample_examples(rows, lambda row: row["labels"]["is_ag_related"] and (row["labels"]["needs_rag"], row["labels"]["needs_web_search"], row["labels"]["needs_weather_data"], row["labels"]["needs_farm_data"], row["labels"]["needs_epa_label"]) == EDGE_COMBOS["farm_only"]),
+        "epa_only": sample_examples(rows, lambda row: row["labels"]["is_ag_related"] and (row["labels"]["needs_rag"], row["labels"]["needs_web_search"], row["labels"]["needs_weather_data"], row["labels"]["needs_farm_data"], row["labels"]["needs_epa_label"]) == EDGE_COMBOS["epa_only"]),
+        "rag_weather": sample_examples(rows, lambda row: row["labels"]["is_ag_related"] and (row["labels"]["needs_rag"], row["labels"]["needs_web_search"], row["labels"]["needs_weather_data"], row["labels"]["needs_farm_data"], row["labels"]["needs_epa_label"]) == EDGE_COMBOS["rag_plus_weather"]),
         "hard_adversarial": sample_examples(rows, lambda row: row["meta"]["difficulty"] == "hard" and row["labels"]["is_ag_related"]),
     }
 

@@ -48,18 +48,31 @@ REQUIRED_LABEL_KEYS = {
     "needs_web_search",
     "needs_weather_data",
     "needs_farm_data",
+    "needs_epa_label",
     "intent",
     "urgency",
 }
 REQUIRED_META_KEYS = {"source_type", "difficulty", "notes"}
 ALLOWED_DIFFICULTY = {"simple", "medium", "hard"}
 EDGE_COMBOS = {
-    "weather_only": (False, False, True, False),
-    "web_only": (False, True, False, False),
-    "farm_only": (False, False, False, True),
-    "rag_plus_weather": (True, False, True, False),
-    "rag_plus_farm": (True, False, False, True),
-    "web_plus_weather": (False, True, True, False),
+    "weather_only": (False, False, True, False, False),
+    "web_only": (False, True, False, False, False),
+    "farm_only": (False, False, False, True, False),
+    "epa_only": (False, False, False, False, True),
+    "rag_plus_weather": (True, False, True, False, False),
+    "rag_plus_farm": (True, False, False, True, False),
+    "web_plus_weather": (False, True, True, False, False),
+    "rag_plus_epa": (True, False, False, False, True),
+}
+EDGE_COMBO_MIN_COUNTS = {
+    "weather_only": 20,
+    "web_only": 20,
+    "farm_only": 20,
+    "epa_only": 0,
+    "rag_plus_weather": 20,
+    "rag_plus_farm": 20,
+    "web_plus_weather": 20,
+    "rag_plus_epa": 0,
 }
 VAGUE_REGEX = re.compile(
     r"\b(looks bad|looks rough|not right|acting up|field looks|weird|off|something wrong|now what|"
@@ -162,7 +175,7 @@ def validate_row(row: dict, source: Path, line_no: int, seen_ids: set[str], inpu
     if not isinstance(meta, dict) or set(meta.keys()) != REQUIRED_META_KEYS:
         fail(f"{source}:{line_no}: meta must contain {sorted(REQUIRED_META_KEYS)}")
 
-    for key in ["is_ag_related", "needs_rag", "needs_web_search", "needs_weather_data", "needs_farm_data"]:
+    for key in ["is_ag_related", "needs_rag", "needs_web_search", "needs_weather_data", "needs_farm_data", "needs_epa_label"]:
         if not isinstance(labels[key], bool):
             fail(f"{source}:{line_no}: labels.{key} must be boolean")
 
@@ -204,7 +217,7 @@ def validate_row(row: dict, source: Path, line_no: int, seen_ids: set[str], inpu
             fail(f"{source}:{line_no}: non-ag rows must use empty crops")
         if topics != []:
             fail(f"{source}:{line_no}: non-ag rows must use empty topics")
-        if any(labels[key] for key in ["needs_rag", "needs_web_search", "needs_weather_data", "needs_farm_data"]):
+        if any(labels[key] for key in ["needs_rag", "needs_web_search", "needs_weather_data", "needs_farm_data", "needs_epa_label"]):
             fail(f"{source}:{line_no}: non-ag rows cannot enable routing flags")
 
     signature = json.dumps(
@@ -231,7 +244,7 @@ def compute_stats(rows: list[dict]) -> dict:
     hard_examples = 0
     for row in rows:
         labels = row["labels"]
-        combo = (labels["needs_rag"], labels["needs_web_search"], labels["needs_weather_data"], labels["needs_farm_data"])
+        combo = (labels["needs_rag"], labels["needs_web_search"], labels["needs_weather_data"], labels["needs_farm_data"], labels["needs_epa_label"])
         route_combo_counts[combo] += 1
         for topic in labels["topics"]:
             topic_counts[topic] += 1
@@ -285,8 +298,9 @@ def run_distribution_checks(stats: dict) -> list[str]:
 
     for combo_name, combo in EDGE_COMBOS.items():
         count = stats["route_combo_counts"][combo]
-        if count < 20:
-            fail(f"distribution: edge routing combo {combo_name} has only {count} rows; expected at least 20")
+        min_count = EDGE_COMBO_MIN_COUNTS.get(combo_name, 20)
+        if count < min_count:
+            fail(f"distribution: edge routing combo {combo_name} has only {count} rows; expected at least {min_count}")
 
     low_topic_threshold = max(20, int(stats["ag_total"] * 0.04))
     for topic in sorted(ALLOWED_TOPICS):
