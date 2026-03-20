@@ -9,7 +9,7 @@ The dataset trains a lightweight classifier that runs at the start of the pipeli
 - whether a query is agriculture-related
 - crop scope (`corn`, `soybean`, `both`, `unknown`, or none)
 - agronomic topic labels
-- routing flags for RAG, web search, weather data, and farm data
+- routing flags for RAG, web search, weather data, farm data, and EPA pesticide labels
 - optional intent and urgency labels
 
 ## Files

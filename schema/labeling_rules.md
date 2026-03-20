@@ -20,6 +20,7 @@ Each row must be valid JSON and follow the schema in `schema/routing_schema.json
     "needs_web_search": false,
     "needs_weather_data": true,
     "needs_farm_data": true,
+    "needs_epa_label": false,
     "intent": "diagnosis",
     "urgency": "medium"
   },
@@ -143,6 +144,15 @@ Set to `true` when field-specific context would materially change the answer, su
 - yield history
 - local observations from the field
 
+#### `needs_epa_label`
+Set to `true` when the system likely needs an EPA pesticide label or label-derived directions, including:
+
+- herbicide, insecticide, fungicide, or pesticide product questions
+- Section 24(c), dicamba cutoff, drift, REI, PHI, adjuvant, tank-mix, or rate restrictions
+- spray decisions where pesticide label compliance materially affects the answer
+
+Set to `false` when the query does not involve pesticide label use or can be routed without label-specific guidance.
+
 ### `intent`
 Use exactly one label:
 
@@ -196,7 +206,7 @@ Example: `Can you help me reset my email password?`
 - `is_ag_related = false`
 - `crops = []`
 - `topics = []`
-- all routing flags `false`
+- all routing flags `false`, including `needs_epa_label`
 
 ## Quality checklist
 

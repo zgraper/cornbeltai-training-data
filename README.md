@@ -45,6 +45,7 @@ Each example should indicate:
   - live or current web information
   - weather data
   - farm-specific data
+  - EPA pesticide label retrieval
 
 Optional labels such as intent and urgency may also be included if they improve downstream orchestration.
 
@@ -58,6 +59,7 @@ Optional labels such as intent and urgency may also be included if they improve 
 - `needs_web_search`
 - `needs_weather_data`
 - `needs_farm_data`
+- `needs_epa_label`
 
 ### Optional supporting labels
 - `intent`
@@ -105,6 +107,7 @@ That means the model should answer questions like:
 - Is this about current conditions that require the web?
 - Does this depend on weather?
 - Does this require farm-specific context?
+- Does this require retrieving an EPA pesticide label?
 - What crop and topic categories are implicated?
 
 The model should **not** attempt to generate agronomic advice.
@@ -147,6 +150,12 @@ Use `true` when the question depends on field-specific context, such as:
 - hybrid/variety
 - user-entered farm records
 
+### `needs_epa_label`
+Use `true` when the query likely requires an EPA pesticide label or label-derived restrictions, such as:
+- herbicide, insecticide, fungicide, or pesticide use questions
+- label compliance, cutoff, drift, REI, PHI, or tank-mix restrictions
+- spray decisions where legal label directions materially affect the answer
+
 ## Dataset design goals
 
 The dataset should be:
@@ -184,6 +193,7 @@ It should include:
     "needs_web_search": false,
     "needs_weather_data": true,
     "needs_farm_data": true,
+    "needs_epa_label": false,
     "intent": "planning",
     "urgency": "medium"
   },

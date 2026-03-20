@@ -30,6 +30,7 @@
         "needs_web_search",
         "needs_weather_data",
         "needs_farm_data",
+        "needs_epa_label",
         "intent",
         "urgency"
       ],
@@ -81,6 +82,9 @@
           "type": "boolean"
         },
         "needs_farm_data": {
+          "type": "boolean"
+        },
+        "needs_epa_label": {
           "type": "boolean"
         },
         "intent": {
