@@ -14,14 +14,14 @@ The dataset trains a lightweight classifier that runs at the start of the pipeli
 
 ## Files
 
-- `train.jsonl`: 2,400 examples
-- `val.jsonl`: 400 examples
-- `test.jsonl`: 400 examples
+- `train.jsonl`: 2,460 examples
+- `val.jsonl`: 410 examples
+- `test.jsonl`: 410 examples
 - `README.md`: dataset overview and workflow notes
 
 ## Notes
 
-- The dataset has been audited for class balance, edge routing combinations, adversarial coverage, and duplicate inputs.
+- The dataset has been audited for class balance, edge routing combinations, adversarial coverage, and duplicate inputs. The latest expansion adds 80 curated examples focused on fresh policy, market, weather, scouting, equipment, and non-ag noise coverage.
 - Rows intentionally mix farmer-style phrasing, clipped short queries, vague field observations, mixed-intent prompts, and non-ag noise.
 - `scripts/audit_report.txt` captures the baseline audit findings and the post-improvement summary.
 - Validation and reporting utilities live in `scripts/validate_dataset.py` and `scripts/dataset_report.py`.

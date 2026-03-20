@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DATASET_DIR = ROOT / "datasets" / "routing"
 SCHEMA_PATH = ROOT / "schema" / "routing_schema.json"
 SPLITS = [DATASET_DIR / "train.jsonl", DATASET_DIR / "val.jsonl", DATASET_DIR / "test.jsonl"]
-EXPECTED_SPLIT_SIZES = {"train.jsonl": 2400, "val.jsonl": 400, "test.jsonl": 400}
+EXPECTED_SPLIT_SIZES = {"train.jsonl": 2460, "val.jsonl": 410, "test.jsonl": 410}
 
 ALLOWED_CROPS = {"corn", "soybean", "both", "unknown"}
 ALLOWED_TOPICS = {
