@@ -14,9 +14,9 @@ The dataset trains a lightweight classifier that runs at the start of the pipeli
 
 ## Files
 
-- `train.jsonl`: 1,200 examples
-- `val.jsonl`: 200 examples
-- `test.jsonl`: 200 examples
+- `train.jsonl`: 2,400 examples
+- `val.jsonl`: 400 examples
+- `test.jsonl`: 400 examples
 - `README.md`: dataset overview and workflow notes
 
 ## Notes

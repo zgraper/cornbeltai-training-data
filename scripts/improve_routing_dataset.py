@@ -14,7 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DATASET_DIR = ROOT / "datasets" / "routing"
 AUDIT_PATH = ROOT / "scripts" / "audit_report.txt"
 SPLITS = ["train.jsonl", "val.jsonl", "test.jsonl"]
-TARGET_SPLIT_SIZES = {"train.jsonl": 1200, "val.jsonl": 200, "test.jsonl": 200}
+TARGET_SPLIT_SIZES = {"train.jsonl": 2400, "val.jsonl": 400, "test.jsonl": 400}
 SEED = 20260318
 
 ALLOWED_CROPS = ["corn", "soybean", "both", "unknown"]
